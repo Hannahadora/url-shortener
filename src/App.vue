@@ -1,26 +1,39 @@
 <template>
 <div id="app">
     <Header />
-    <div class="bo1 px-24 py-10 mt-10 flex items-center justify-between">
-      <div class="w-1/2 mt-10">
+    <div class="bo1 px-24 py-10 mt-10 flex md:flex-row flex-col items-center justify-between">
+      <div class="overflow-x-hidden md:absolute md:right-0 top-32">
+        <img class="md:relative -right-24" alt="illust" src="./assets/images/illustration-working.svg" />
+      </div>
+
+      <div class="md:w-1/2 w-full mt-10">
         <h1 class="font-bold text-7xl">More than just shorter links</h1>
         <p class="my-7 text-2xl">Build your brand's recognition and get detailed insights on how your links are performing.</p>
         <Button text="Get Started" theme="primary"/>
       </div>
-
-      <div class="overflow-x-hidden absolute right-0 top-32">
-        <img class="relative -right-24" alt="illust" src="./assets/images/illustration-working.svg" />
-      </div>
     </div>
+    
 
     <div class="bo2 w-full bg-gray-100 px-24 pb-24 mt-48">
-      <form action="" class="w-full rounded-xl relative -top-16 p-10">
+      <form @submit.prevent="shortenLink" class="w-full rounded-xl relative -top-16 p-10">
           <div class="flex items-center justify-center gap-5">
-            <input type="text" v-model="urlLink" class="bg-white focus:outline-none w-10/12 p-4 rounded-lg text-base" placeholder="Shorten a link here...">
-            <Button text="Shorten It!" class="rounded-lg px-7 py-4"/>
+            <input type="text" v-model="urlLinks" class="box bg-white focus:outline-none w-10/12 p-4 rounded-lg text-base" placeholder="Shorten a link here...">
+            <input type="submit" value="Shorten It!" class="cursor-pointer text-white rounded-lg px-7 py-4" style="background-color: hsl(180, 66%, 49%);" />
           </div>
-          <div id="errorMsg"></div>
+          <div v-if="errorMsg" id="errorMsg">{{ errorMsg }}</div>
       </form>
+
+      <div v-if="loading" class="loader">
+        <img src="./assets/images/loader.gif" alt="">
+      </div>
+
+     <div v-if="shortLinks" class="linkDisplay text-xl flex items-center justify-between bg-white p-10">
+         <a href="">{{ original_link }}</a>
+         <div class="flex items-center">
+         <li>{{ full_short_link }}</li>
+         <Button text="Copy" @click="copyLink.prevent"/>
+       </div>
+     </div>
 
       <div class="w-5/12 mx-auto my-10 text-center">
         <h1 class="text-black font-bond text-2xl">Advanced Statistics</h1>
@@ -73,19 +86,44 @@ export default {
 
   data() {
     return {
-      urlLink: ''
+      urlLinks: '',
+      errorMsg: '',
+      shortLinks: false,
+      original_link: '',
+      full_short_link: '',
+      loading: false
     }
   },
 
   methods: {
     shortenLink(e) {
-      if (!this.urlLink) {
-        console.log('please add a link')
+        this.errorMsg = this.urlLinks.length > 1 ? '' : 'Please add a link',
+        this.loading = this.urlLinks.length > 1 ? true : false,
 
-       
-      }
-       e.preventDefault()
-      }
+        fetch(`https://api.shrtco.de/v2/shorten?url=${this.urlLinks}`) 
+          .then((res) => res.json())
+          .then((data) => {
+            this.shortLinks = data.result
+            this.original_link = this.shortLinks.original_link
+            this.full_short_link = this.shortLinks.full_short_link
+            console.log(this.shortLinks)
+          })
+
+          .catch((err) => {
+            this.errorMsg = 'Can\'t find Link'
+          })
+
+          .finally(() => {
+             this.loading = false
+          }) 
+      },
+
+    copyLink(e) {
+      this.full_short_link.copy()
+    }
+      
+
+      
   }
 }
 </script>
@@ -117,5 +155,10 @@ export default {
 
   #errorMsg {
     color: hsl(0, 87%, 67%);
+  }
+
+  .loader {
+    width: 30%;
+    margin: 0 auto;
   }
 </style>
