@@ -26,7 +26,7 @@
 
 
 <!-- Mobile Screen -->
-        <div v-if="showNav" class="sidenavbar w-10/12 h-80 rounded-3xl absolute top-20 p-10 z-50" style="background-color: hsl(257, 27%, 26%);">
+        <div v-if="showNav" class="sidenavbar md:hidden w-10/12 h-80 rounded-3xl absolute top-20 p-10 z-50" style="background-color: hsl(257, 27%, 26%);">
             <div class="flex flex-col items-center gap-5">
                 <h6><a href="">Features</a></h6>
                 <h6><a href="">Pricing</a></h6>
